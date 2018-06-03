@@ -2,22 +2,23 @@
   <el-container>
     <el-header>
       <span>照片墙后台管理系统</span>
+      <span class="admin-name">管理员：{{admin_name}}</span>
     </el-header>
-    <el-container>
+    <el-container class="main-container">
       <el-aside>
         <el-menu>
-          <el-menu-item index="1">
-            <router-link to="/photocheck">
+          <router-link to="/photocheck">
+            <el-menu-item index="1">
               <i class="el-icon-picture"></i>
               <span>照片审核</span>
-            </router-link>
-          </el-menu-item>
-          <el-menu-item index="2">
-            <router-link to="/rulechange">
+            </el-menu-item>
+          </router-link>
+          <router-link to="/rulechange">
+            <el-menu-item index="2">
               <i class="el-icon-edit"></i>
               <span>规则修改</span>
-            </router-link>
-          </el-menu-item>
+            </el-menu-item>
+          </router-link>
         </el-menu>
       </el-aside>
       <el-main>
@@ -34,6 +35,7 @@ export default {
   data() {
     return {
       screenHeight: window.innerHeight - 50,
+      admin_name: '张三',
     };
   },
   mounted() {
@@ -42,8 +44,16 @@ export default {
     document.getElementsByClassName('el-main')[0].style.height = str;
     window.onresize = () =>
       (() => {
-        this.screenHeight = window.innerHeight - 60;
+        this.screenHeight = window.innerHeight - 50;
       })();
+    this.$ajax.get('/admins/token')
+    // 这里要传参数limit和offset!!
+      .then((response) => {
+        this.admin_name = response.data.name;
+      })
+      .catch((error) => {
+        console.log(error);
+      });
   },
   watch: {
     screenHeight() {
@@ -55,6 +65,7 @@ export default {
 </script>
 
 <style>
+/* 预设css */
 body,ul,ol,li,p,h1,h2,h3,h4,h5,h6,form,fieldset,table,td,img,div,dl,dt,dd,input{
   margin:0;
   padding:0;
@@ -73,19 +84,28 @@ body{
 }
 
 
+/* 头部 */
 .el-header{
-  margin-bottom: 10px;
+  margin-bottom: 9px;
   height: 40px ! important;
   background-color: #2c3e50;
 }
 
+.admin-name{
+  float: right;
+}
 
 .el-header span{
   line-height: 40px;
   color: #ffffff;
 }
 
+/* 包含侧栏和路由页面的容器 */
+.main-container{
+  border-top: 1px solid #dddddd;
+}
 
+/* 侧栏 */
 .el-aside{
   width: 220px ! important;
   background-color: #eeeeee;
@@ -96,8 +116,5 @@ body{
   background-color: #eeeeee;
 }
 
-.el-main{
-  margin-left: 10px;
-}
 
 </style>

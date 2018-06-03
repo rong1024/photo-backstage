@@ -1,63 +1,89 @@
 <template>
-  <quill-editor v-model="content"
-                ref="myQuillEditor"
-                :options="editorOption"
-                @blur="onEditorBlur($event)"
-                @focus="onEditorFocus($event)"
-                @ready="onEditorReady($event)">
-  </quill-editor>
+  <el-form>
+    <el-form-item label="规则编写">
+      <div ref="editor" class="editor"></div>
+    </el-form-item>
+    <el-form-item label="是否提交">
+      <el-button type="primary" @click="confirm">确认</el-button>
+    </el-form-item>
+  </el-form>
 </template>
 
 
 <script>
-import { quillEditor } from 'vue-quill-editor' //调用编辑器
-import Quill from 'quill'
+import E from 'wangeditor';
 
-import 'quill/dist/quill.core.css'
-import 'quill/dist/quill.snow.css'
-import 'quill/dist/quill.bubble.css'
-
-
- export default {
-  components: {
-    quillEditor
+export default {
+  name: 'editor',
+  data() {
+    return {
+      editorContent: '',
+    };
   },
-  data () {
-      return {
-        content: '<h2>I am Example</h2>',
-        editorOption: {
-          // some quill options
-        }
-      }
+  methods: {
+    confirm() {
+      this.$confirm('确定提交?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning',
+      }).then(() => {
+        this.$ajax.post('http://localhost:8080/static/groups.json', this.editorContent)
+        // 记得改成实际的url地址!!
+          .catch((error) => {
+            console.log(error);
+          });
+        this.$message({
+          type: 'success',
+          message: '操作成功!',
+        });
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消',
+        });
+      });
     },
-    methods: {
-      onEditorBlur(quill) {
-        console.log('editor blur!', quill)
-      },
-      onEditorFocus(quill) {
-        console.log('editor focus!', quill)
-      },
-      onEditorReady(quill) {
-        console.log('editor ready!', quill)
-      },
-      onEditorChange({ quill, html, text }) {
-        console.log('editor change!', quill, html, text)
-        this.content = html
-      }
-    },
-    computed: {
-      editor() {
-        return this.$refs.myQuillEditor.quill
-      }
-    },
-    mounted() {
-      console.log('this is current quill instance object', this.editor)
-    }
- }
+  },
+  mounted() {
+    const editor = new E(this.$refs.editor);
+    editor.customConfig.onchange = (html) => {
+      this.editorContent = html;
+    };
+    editor.create();
+    this.$ajax.get('http://localhost:8080/static/rule.json')
+    // 要改成实际的url地址!!
+      .then((response) => {
+        editor.txt.html(response.data.content);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  },
+};
 </script>
 
 <style>
-.quill-editor{
-  height: 80%;
+.el-form-item__content{
+  display: inline-block;
+  margin-left: 20px;
+}
+
+.editor{
+  text-align:left;
+  width: 1000px;
+  z-index: 1;
+}
+
+.editor h1{
+  font-size: 26px;
+}
+/* 对富文本的编辑内容高度设置 */
+.w-e-text-container{
+  height: 400px ! important;
+}
+
+/* 解决弹框被覆盖而无法点击的bug */
+.w-e-text-container{
+  z-index: 100 ! important;
 }
 </style>

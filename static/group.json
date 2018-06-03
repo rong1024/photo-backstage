@@ -1,0 +1,20 @@
+{
+    "title":"标题1",
+    "vote":"21",
+    "description":"一些描述",
+    "user":"用户1",
+    "imgs":[
+        {
+        "url":"/static/logo.png",
+        "id":"123"
+        },
+        {
+            "url":"/static/logo.png",
+            "id":"456"
+        },
+        {
+            "url":"/static/logo.png",
+            "id":"789"
+        }
+    ]
+}
